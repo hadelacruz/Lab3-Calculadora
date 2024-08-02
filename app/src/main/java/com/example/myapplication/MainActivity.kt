@@ -26,17 +26,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         txtResult = findViewById(R.id.txtResult)
+
         findViewById<Button>(R.id.btnIgual).setOnClickListener {
             evaluarExpresion(it)
         }
+
         findViewById<Button>(R.id.btnC).setOnClickListener {
             limpiarTexto(it)
         }
-    }
-
-    // Método para limpiar el texto
-    fun limpiarTexto(view: View) {
-        txtResult?.text = "0"
     }
 
     fun calcular(view: View) {
@@ -59,11 +56,17 @@ class MainActivity : AppCompatActivity() {
     fun evaluarExpresion(view: View) {
         val expresion = txtResult?.text.toString()
         try {
+            validarExpresion(expresion)
             val result = evaluate(expresion)
             txtResult?.text = result.toString()
         } catch (e: IllegalArgumentException) {
-            txtResult?.text = "Error: ${e.message}"
+            txtResult?.text = "Syntax Error"
         }
+    }
+
+    // Método para limpiar el texto
+    fun limpiarTexto(view: View) {
+        txtResult?.text = "0"
     }
 
     // Métodos de la calculadora
@@ -99,7 +102,7 @@ class MainActivity : AppCompatActivity() {
                 while (!stack.isEmpty() && stack.peek() != '(')
                     result.append(stack.pop()).append(' ')
                 if (!stack.isEmpty() && stack.peek() != '(') {
-                    throw IllegalArgumentException("Invalid Expression") // expresión inválida
+                    throw IllegalArgumentException("Syntax Error") // expresión inválida
                 } else {
                     stack.pop()
                 }
@@ -113,7 +116,7 @@ class MainActivity : AppCompatActivity() {
 
         while (!stack.isEmpty()) {
             if (stack.peek() == '(')
-                throw IllegalArgumentException("Invalid Expression") // expresión inválida
+                throw IllegalArgumentException("Syntax Error") // expresión inválida
             result.append(stack.pop()).append(' ')
         }
 
@@ -152,5 +155,39 @@ class MainActivity : AppCompatActivity() {
         return evaluatePostfix(stringToList(postfixExpression))
     }
 
+    // Método para validar la expresión antes de convertirla a postfix y evaluarla
+    private fun validarExpresion(expresion: String) {
+        val cleanedExpression = expresion.replace("\\s+".toRegex(), "")
+        val operators = setOf('+', '-', '*', '/', '^')
+        var openParentheses = 0
+        var lastChar: Char? = null
 
+        for (char in cleanedExpression) {
+            if (char == '(') {
+                openParentheses++
+            } else if (char == ')') {
+                if (openParentheses == 0) {
+                    throw IllegalArgumentException("Syntax Error")
+                }
+                openParentheses--
+            }
+
+            if (char in operators) {
+                if (lastChar != null && lastChar in operators) {
+                    throw IllegalArgumentException("Syntax Error")
+                }
+            }
+
+            lastChar = char
+        }
+
+        if (openParentheses != 0) {
+            throw IllegalArgumentException("Syntax Error")
+        }
+
+        if (lastChar in operators) {
+            throw IllegalArgumentException("Syntax Error")
+        }
+    }
 }
+
