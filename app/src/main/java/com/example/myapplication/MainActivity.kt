@@ -29,6 +29,14 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnIgual).setOnClickListener {
             evaluarExpresion(it)
         }
+        findViewById<Button>(R.id.btnC).setOnClickListener {
+            limpiarTexto(it)
+        }
+    }
+
+    // Método para limpiar el texto
+    fun limpiarTexto(view: View) {
+        txtResult?.text = "0"
     }
 
     fun calcular(view: View) {
@@ -143,4 +151,6 @@ class MainActivity : AppCompatActivity() {
         val postfixExpression = infixToPostfix(expresion)
         return evaluatePostfix(stringToList(postfixExpression))
     }
+
+
 }
